@@ -41,6 +41,14 @@ format.check:
 format.write:
 	@black .
 
+
+build.docker:
+	@docker compose up --build
+
+
+hf.deploy:
+	@huggingface-cli upload finaid-mcp-server . --repo-type=space
+
 #cdk.deploy:
 #	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never
 #
@@ -51,11 +59,11 @@ format.write:
 #	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never && \
 #    $(MAKE) -C data_sync promote-live
 
-cdk.diff:
-	@cdk diff
+# cdk.diff:
+# 	@cdk diff
 
-cdk.synth:
-	@cdk synth --require-approval never
+# cdk.synth:
+# 	@cdk synth --require-approval never
 
-cdk.deploy:
-	@cdk deploy
+# cdk.deploy:
+# 	@cdk deploy

@@ -113,7 +113,8 @@ finally:
     await client.cleanup()
 ```
 
-## Environment Variables
+## Makefile
+All commands presented here have a Makefile equivalent.
 
 - `PORT` - Server port (default: 7860)
 - `PYTHONUNBUFFERED` - Python output buffering (default: 1)

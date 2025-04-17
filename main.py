@@ -31,7 +31,7 @@ class AppContext:
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with our systems."""
     # Initialize systems on startup
-    synthetic_data_path = "../../../dist/data/synthetic_population_data.CSV"
+    synthetic_data_path = "../../../dist/data/synthetic_population_data.csv"
     synthetic_financial_aid_data_path = (
         "../../../dist/data/synthetic_financial_aid_determinations.csv"
     )
