@@ -14,15 +14,15 @@ start.mcp:
 
 # Start the terminal chat client
 start.terminal:
-	@ python finaid_admin_mcp_client/src/interfaces/cli/terminal_chat.py --api http://localhost:8090
+	@python finaid_admin_mcp_client/src/interfaces/cli/terminal_chat.py --api http://localhost:8090
 
 
 test:
 	@pytest tests
 
 test.coverage:
-	@coverage run -m pytest -v tests
-	@coverage report -m --omit='*/clients/*' --fail-under=80
+	@uv run coverage run -m pytest -v tests
+	@uv run coverage report -m --omit='*/clients/*' --fail-under=80
 
 typecheck:
 	@mypy src tests main.py
