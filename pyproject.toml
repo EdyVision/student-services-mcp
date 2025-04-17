@@ -5,11 +5,17 @@ description = "Financial Aid Model Context Protocol Server Example"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiohttp>=3.11.16",
     "black>=25.1.0",
     "coverage>=7.8.0",
+    "fastapi>=0.115.12",
+    "jupyter>=1.1.1",
     "mcp[cli]>=1.3.0",
     "pandas>=2.2.3",
+    "pylint>=3.3.6",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-docker>=3.2.1",
     "transformers>=4.51.3",
 ]
 

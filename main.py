@@ -1,3 +1,4 @@
+# pylint: disable=unused-variable, line-too-long
 import asyncio
 import logging
 import os
@@ -5,169 +6,127 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import List
-
+import yaml
+from fastapi.openapi.docs import get_redoc_html
 import uvicorn
-from mcp.server import FastMCP, Server
-from mcp.server.fastmcp.server import Settings
-# from fastapi import FastAPI, Response
-# from fastapi.middleware.cors import CORSMiddleware
+from mcp.server import FastMCP
+from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse
 
-from src.systems.claims import ClaimsSystem
-from src.systems.eligibility import EligibilitySystem
-from src.systems.records import RecordsSystem
+from src.adapters.clients.financial_aid import FinancialAidSystem
+from src.adapters.clients.registrar import RegistrarSystem
+from src.adapters.resolvers.financial_aid_resolvers import FinancialAidResolver
+from src.adapters.resolvers.registrar_resolvers import RegistrarResolver
 
 
 @dataclass
 class AppContext:
     """Application context with our three systems."""
 
-    eligibility: EligibilitySystem
-    claims: ClaimsSystem
-    records: RecordsSystem
+    financial_aid: FinancialAidResolver
+    registrar: RegistrarResolver
 
 
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with our systems."""
     # Initialize systems on startup
-    eligibility_system = EligibilitySystem()
-    claims_system = ClaimsSystem()
-    records_system = RecordsSystem()
+    synthetic_data_path = "../../../dist/data/synthetic_population_data.CSV"
+    synthetic_financial_aid_data_path = (
+        "../../../dist/data/synthetic_financial_aid_determinations.csv"
+    )
+    financial_aid_system = FinancialAidSystem(synthetic_financial_aid_data_path)
+    registrar_system = RegistrarSystem(synthetic_data_path)
+    financial_aid_resolver = FinancialAidResolver(
+        registrar=registrar_system, financial_aid=financial_aid_system
+    )
+    registrar_resolver = RegistrarResolver(registrar=registrar_system)
 
     try:
         yield AppContext(
-            eligibility=eligibility_system, claims=claims_system, records=records_system
+            financial_aid=financial_aid_resolver, registrar=registrar_resolver
         )
     finally:
         # Cleanup on shutdown
-        await eligibility_system.disconnect()
-        await claims_system.disconnect()
-        await records_system.disconnect()
+        pass
 
 
 # Create our MCP server with a descriptive name
-mcp = FastMCP("finaid-mcp", lifespan=app_lifespan, host=os.getenv("HOST", "0.0.0.0"),
-    port=os.getenv("PORT", "7860"))
+mcp = FastMCP(
+    "finaid-mcp",
+    lifespan=app_lifespan,
+    host=os.getenv("HOST", "0.0.0.0"),
+    port=os.getenv("PORT", "7860"),
+)
 
-# Add CORS middleware
-# mcp.app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+api_app = FastAPI(title="finaid-mcp")
 
-# Add root endpoint for Hugging Face Spaces
-@mcp.resource("root://")
-async def root() -> str:
-    """Root endpoint for Hugging Face Spaces."""
-    return "Financial Aid MCP Server is running"
 
-# Add health check endpoint
-@mcp.resource("health://")
-async def health_check() -> str:
-    """Health check endpoint."""
-    return "ok"
-
-# ===== RESOURCES =====
+# ===== REGISTRAR =====
 @mcp.resource("students://{student_id}/profile")
 async def get_student_profile(student_id: str) -> str:
     """Get a student's profile information."""
-    try:
-        records_system = mcp.get_context().request_context.lifespan_context.records
-        profile = records_system.get_student_profile(student_id)
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_student_profile(
+        student_id
+    )
 
-        if not profile:
-            return f"Student with ID {student_id} not found."
 
-        response = f"Student {profile['name']} (ID: {profile['student_id']}) has a GPA of {profile['gpa']} in {profile['major']}."
-    except Exception as e:
-        response = f"Error retrieving student profile: {str(e)}"
-
-    return response
+@mcp.tool()
+async def fetch_student_profile(student_id: str) -> str:
+    """Get a student's profile information."""
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_student_profile(
+        student_id
+    )
 
 
 @mcp.resource("students://profiles")
 async def get_students() -> List[str]:
     """Get a list of students."""
-    records_system = mcp.get_context().request_context.lifespan_context.records
-    profiles = records_system.get_student_profiles(100)
-    return profiles
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_student_profiles(
+        100
+    )
+
+
+@mcp.tool()
+async def fetch_students(limit: int = 100) -> List[str]:
+    """Get a list of students."""
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_student_profiles(
+        limit
+    )
 
 
 @mcp.resource("students://{student_id}/academic-history")
 async def get_academic_history(student_id: str) -> str:
     """Get a student's academic history."""
-    records = mcp.get_context().request_context.lifespan_context.records
-    history = records.get_academic_history_handler(student_id)
-    return history
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_academic_history(
+        student_id
+    )
 
 
+@mcp.tool()
+async def fetch_academic_history(student_id: str) -> str:
+    """Get a student's academic history."""
+    return await mcp.get_context().request_context.lifespan_context.registrar.resolve_academic_history(
+        student_id
+    )
+
+
+# ===== FINANCIAL AID =====
 @mcp.resource("students://{student_id}/financial-aid")
 async def get_financial_aid_eligibility(student_id: str) -> str:
     """Get programs a student is eligible for."""
-    records_system = mcp.get_context().request_context.lifespan_context.records
-    eligibility = mcp.get_context().request_context.lifespan_context.eligibility
-
-    # Retrieve student info
-    profile = records_system.get_student_profile(student_id)
-
-    # Then check eligibility
-    requirements, financial_aid = eligibility.determine_financial_aid_eligibility(
-        profile["gpa"], profile["major"]
+    return await mcp.get_context().request_context.lifespan_context.financial_aid.resolve_financial_aid_eligibility(
+        student_id
     )
 
-    if financial_aid:
-        return f"Student {profile['name']} (ID: {student_id}) has a GPA of {profile['gpa']} in {profile['major']}. They are eligible for the {financial_aid}. Requirements: {requirements}"
-    else:
-        return f"Student {profile['name']} (ID: {student_id}) has a GPA of {profile['gpa']} in {profile['major']}. They are not eligible for financial aid. Requirements: {requirements if requirements else 'Requirements unspecified for program or major.'}"
-
-
-@mcp.resource("greetings://{name}")
-def get_greeting(name: str) -> str:
-    """Generate a personalized greeting for the given name."""
-    return f"Hello, {name}! Welcome to MCP."
-
-
-# ==== TOOLS ====
-@mcp.tool()
-async def fetch_student(student_id: str) -> str:
-    """Get a student's profile information."""
-    # Create systems directly rather than accessing via MCP context
-    records_system = mcp.get_context().request_context.lifespan_context.records
-    profile = records_system.get_student_profile(student_id)
-
-    return f"""Student {profile['name']} (ID: {profile['student_id']}) has a GPA of {profile['gpa']} in {profile['major']} and an income of ${profile['income']}."""
-
 
 @mcp.tool()
-async def fetch_students() -> List[str]:
-    """Get a list of students."""
-    records_system = mcp.get_context().request_context.lifespan_context.records
-    profiles = records_system.get_student_profiles(100)
-    return profiles
-
-
-@mcp.tool()
-async def check_eligibility(student_id: str) -> str:
+async def check_financial_aid_eligibility(student_id: str) -> str:
     """Get a student's financial aid eligibility."""
-    # Create systems directly rather than accessing via MCP context
-    records_system = mcp.get_context().request_context.lifespan_context.records
-    eligibility = mcp.get_context().request_context.lifespan_context.eligibility
-
-    # Retrieve student info
-    profile = records_system.get_student_profile(student_id)
-
-    # Then check eligibility
-    requirements, financial_aid = eligibility.determine_financial_aid_eligibility(
-        profile["gpa"], profile["major"]
+    return await mcp.get_context().request_context.lifespan_context.financial_aid.resolve_financial_aid_eligibility(
+        student_id
     )
 
-    if financial_aid:
-        return f"Student {profile['name']} (ID: {student_id}) has a GPA of {profile['gpa']} in {profile['major']}. They are eligible for the {financial_aid}. Requirements: {requirements}"
-    else:
-        return f"Student {profile['name']} (ID: {student_id}) has a GPA of {profile['gpa']} in {profile['major']}. They are not eligible for financial aid. Requirements: {requirements if requirements else 'Requirements unspecified for program or major.'}"
 
 class FinancialAidMCPLogger:  # TODO: Move this to its own file
     @staticmethod
@@ -186,15 +145,68 @@ class FinancialAidMCPLogger:  # TODO: Move this to its own file
         return logging.getLogger("uvicorn.default")
 
 
+# ==== SERVER ====
+@api_app.get("/openapi.json", include_in_schema=False)
+async def get_open_api_json():
+    return JSONResponse(api_app.openapi())
+
+
+@api_app.get("/openapi.yml", include_in_schema=False)
+async def get_open_api_yaml():
+    openapi_schema = api_app.openapi()
+    yaml_schema = yaml.dump(openapi_schema)
+    return Response(content=yaml_schema, media_type="text/yaml")
+
+
+@api_app.get("/rest/docs", include_in_schema=False)
+async def redoc_html():  # pylint: disable=unused-variable
+    return get_redoc_html(
+        openapi_url="/openapi.yml",
+        redoc_favicon_url="/favicon.ico",
+        title="Chat AI API",
+    )
+
+
+@api_app.get("/health")
+async def mcp_root():
+    """Root endpoint."""
+    return JSONResponse(
+        {
+            "name": "Financial Aid Integration MCP",
+            "version": "1.0",
+            "description": "MCP server for financial aid",
+            "discovery_endpoint": "/finaid-admin/mcp",
+        }
+    )
+
+
+@mcp.resource("root://")
+async def root() -> str:
+    """Root endpoint for Hugging Face Spaces."""
+    return "Financial Aid MCP Server is running"
+
+
+@mcp.resource("health://")
+async def health_check() -> str:
+    """Health check endpoint."""
+    return "ok"
+
+
+@mcp.resource("greetings://{name}")
+def get_greeting(name: str) -> str:
+    """Generate a personalized greeting for the given name."""
+    return f"Hello, {name}! Welcome to MCP."
+
 
 async def main():
     transport = os.getenv("TRANSPORT", "sse")
-    if transport == 'sse':
+    if transport == "sse":
         # Run the MCP server with sse transport
         await mcp.run_sse_async()
     else:
         # Run the MCP server with stdio transport
         await mcp.run_stdio_async()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

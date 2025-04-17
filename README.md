@@ -29,7 +29,7 @@ The server exposes the following main endpoints:
 ## Available Commands
 
 1. `fetch_students` - Retrieves a list of all students
-2. `check_eligibility <student_id>` - Checks financial aid eligibility for a specific student
+2. `check_financial_aid_eligibility <student_id>` - Checks financial aid eligibility for a specific student
 3. `fetch_student <student_id>` - Retrieves detailed information for a specific student
 
 ## Docker Setup
@@ -63,7 +63,7 @@ students = client.fetch_students()
 
 # Check eligibility for a specific student
 student_id = "df62674f-5641-4657-a614-901a22ea76f2"
-eligibility = client.check_eligibility(student_id)
+eligibility = client.check_financial_aid_eligibility(student_id)
 
 # Fetch details for a specific student
 student_details = client.fetch_student(student_id)
@@ -86,6 +86,31 @@ uv sync
 2. Run the server:
 ```bash
 uv run main.py
+```
+
+3. Connecting with Custom Client
+```python
+from src.client import FinaidMCPClient
+
+client = FinaidMCPClient()  # defaults to localhost, pass in your huggingface space
+
+try:
+    await client.connect_to_server()
+
+    # Example: Fetch students
+    students = await client.fetch_students(limit=10)
+    print("First 10 students:")
+    for student in students:
+        print(f"- {student['name']} (GPA: {student['gpa']})")
+
+    # Example: Check financial aid eligibility
+    student_id = "0c1a6fd7-c426-451d-a047-ae74cf091863"
+    eligibility = await client.check_financial_aid_eligibility(student_id)
+    print(f"\nEligibility for student {student_id}:")
+    print(eligibility)
+
+finally:
+    await client.cleanup()
 ```
 
 ## Environment Variables

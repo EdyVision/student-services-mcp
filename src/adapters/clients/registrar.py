@@ -1,10 +1,9 @@
-# systems/records.py
 import os
 import pandas as pd
 import random
 
 
-class RecordsSystem:
+class RegistrarSystem:
     """Student Records System using synthetic data."""
 
     def __init__(self, data_path="../../dist/data/synthetic_population_data.csv"):
@@ -34,19 +33,16 @@ class RecordsSystem:
                         "student_id": student_id,
                         "name": row["name"],
                         "courses": row["courses"],
-                        # "phone": row["phone"],
-                        # "address": row["address"],
-                        # "enrollment_status": row["enrollment_status"],
+                        "is_need_based_qualified": random.choice([True, False]),
+                        "enrollment_status": "enrolled",
                         "major": row["major"],
                         "program": row["program"],
-                        # "year": row["year"],
+                        "year": random.choice(
+                            ["Freshman", "Sophomore", "Junior", "Senior"]
+                        ),
                         "gpa": row["gpa"],
                     }
 
-                    # Generate synthetic academic history
-                    # self.academic_history[student_id] = self._generate_academic_history(
-                    #     student_id, row["major"], row["year"], row["gpa"]
-                    # )
             except Exception as e:
                 print(f"Error loading synthetic data: {e}")
                 # If there's an error, we'll use empty data
@@ -191,17 +187,17 @@ class RecordsSystem:
         # No actual connections to close in this mock implementation
         pass
 
-    def get_student_profile(self, student_id: str) -> dict:
+    async def get_student_profile(self, student_id: str) -> dict:
         """Get a student's profile information."""
         # TODO: This needs to call out to the live system
         return self.students.get(student_id, {"error": "Student not found"})
 
-    def get_student_profiles(self, num_records: int) -> dict:
+    async def get_student_profiles(self, num_records: int) -> dict:
         """Get a student's profile information."""
         # TODO: This needs to call out to the live system
         return list(self.students.values())[:num_records]
 
-    def get_academic_history(self, student_id: str) -> dict:
+    async def get_academic_history(self, student_id: str) -> dict:
         """Get a student's academic history."""
         return self.academic_history.get(
             student_id, {"error": "Academic history not found"}

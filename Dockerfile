@@ -21,7 +21,8 @@ COPY --chown=user uv.lock .
 COPY --chown=user pyproject.toml .
 
 # Copy source code
-COPY --chown=user . .
+COPY --chown=user main.py .
+COPY --chown=user ./src ./src
 COPY --chown=user ./dist/data ./dist/data
 
 # Create and set up virtual environment
