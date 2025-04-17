@@ -1,7 +1,7 @@
 [project]
-name = "finaid-mcp"
+name = "student-services-demo-mcp"
 version = "0.1.0"
-description = "Financial Aid Model Context Protocol Server Example"
+description = "A demo model context protocol for student services at a fictitious university"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -9,6 +9,7 @@ dependencies = [
     "black>=25.1.0",
     "coverage>=7.8.0",
     "fastapi>=0.115.12",
+    "fastapi-mcp>=0.2.0",
     "jupyter>=1.1.1",
     "mcp[cli]>=1.3.0",
     "pandas>=2.2.3",
@@ -18,9 +19,6 @@ dependencies = [
     "pytest-docker>=3.2.1",
     "transformers>=4.51.3",
 ]
-
-[project.scripts]
-start = "main:run"
 
 
 [build-system]

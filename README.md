@@ -1,5 +1,5 @@
 ---
-title: Financial Aid MCP Server
+title: Student Services MCP Server
 emoji: 🧾
 colorFrom: blue
 colorTo: green
@@ -9,7 +9,7 @@ app_file: Dockerfile
 pinned: false
 ---
 
-# Financial Aid MCP Server
+# Student Services MCP Server
 
 This is a FastAPI-based server that provides financial aid management functionality through an MCP (Model Control Protocol) interface. The server allows you to manage and check student financial aid eligibility.
 
@@ -37,13 +37,13 @@ The server exposes the following main endpoints:
 ### Building the Image
 
 ```bash
-docker build -t finaid-mcp .
+docker build -t student-services-demo-mcp .
 ```
 
 ### Running the Container
 
 ```bash
-docker run -p 7860:7860 finaid-mcp
+docker run -p 7860:7860 student-services-demo-mcp
 ```
 
 The server will be available at `http://localhost:7860`
@@ -53,10 +53,10 @@ The server will be available at `http://localhost:7860`
 A simple Python client is provided to interact with the server. The client is located in `src/client.py`. Here's how to use it:
 
 ```python
-from src.client import FinaidClient
+from src.client import StudentServicesMCPClient
 
 # Create a client instance
-client = FinaidClient()
+client = StudentServicesMCPClient()
 
 # Fetch all students
 students = client.fetch_students()
@@ -88,33 +88,4 @@ uv sync
 uv run main.py
 ```
 
-3. Connecting with Custom Client
-```python
-from src.client import FinaidMCPClient
-
-client = FinaidMCPClient()  # defaults to localhost, pass in your huggingface space
-
-try:
-    await client.connect_to_server()
-
-    # Example: Fetch students
-    students = await client.fetch_students(limit=10)
-    print("First 10 students:")
-    for student in students:
-        print(f"- {student['name']} (GPA: {student['gpa']})")
-
-    # Example: Check financial aid eligibility
-    student_id = "0c1a6fd7-c426-451d-a047-ae74cf091863"
-    eligibility = await client.check_financial_aid_eligibility(student_id)
-    print(f"\nEligibility for student {student_id}:")
-    print(eligibility)
-
-finally:
-    await client.cleanup()
-```
-
-## Makefile
-All commands presented here have a Makefile equivalent.
-
-- `PORT` - Server port (default: 7860)
-- `PYTHONUNBUFFERED` - Python output buffering (default: 1)
+3. Connecting with Custom Client or Agent

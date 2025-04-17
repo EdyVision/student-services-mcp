@@ -1,5 +1,5 @@
 # Use Python base image
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM ghcr.io/astral-sh/uv:0.6-python3.13-bookworm
 
 # Create non-root user (user with uid 1000 is required by HF Spaces)
 RUN useradd -m -u 1000 user

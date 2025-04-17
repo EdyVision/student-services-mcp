@@ -47,7 +47,7 @@ build.docker:
 
 
 hf.deploy:
-	@huggingface-cli upload finaid-mcp-server . --repo-type=space
+	@huggingface-cli upload student-services-demo-mcp . --repo-type=space
 
 #cdk.deploy:
 #	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never
