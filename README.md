@@ -94,15 +94,18 @@ from src.client import StudentServicesMCPClient
 # Create a client instance
 client = StudentServicesMCPClient()
 
-# Fetch all students
-students = client.fetch_students()
+# Connect
+await client.connect_to_server()
+
+# Fetch students
+students = await client.fetch_students(limit: int = <limit>)
 
 # Check eligibility for a specific student
 student_id = "<student_id>"
-eligibility = client.check_financial_aid_eligibility(student_id)
+eligibility = await client.check_financial_aid_eligibility(student_id)
 
 # Fetch details for a specific student
-student_details = client.fetch_student(student_id)
+student_details = await client.fetch_student(student_id)
 ```
 
 ## Docker Setup
