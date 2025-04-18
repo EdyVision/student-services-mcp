@@ -11,9 +11,7 @@ class TestFinancialAidResolver:
         registrar_system = RegistrarSystem(
             "../../../dist/data/synthetic_population_data.csv"
         )
-        financial_aid_system = FinancialAidSystem(
-            "../../../dist/data/synthetic_financial_aid_determinations.csv"
-        )
+        financial_aid_system = FinancialAidSystem()
         return FinancialAidResolver(registrar_system, financial_aid_system)
 
     @pytest.mark.asyncio

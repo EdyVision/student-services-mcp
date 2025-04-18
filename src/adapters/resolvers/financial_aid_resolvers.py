@@ -16,14 +16,9 @@ class FinancialAidResolver:
         if not profile:
             return f"Student with ID {student_id} not found."
 
-        print(profile)
-
         requirements, financial_aid = (
             await self.financial_aid_system.get_eligible_financial_aid(profile)
         )
-
-        print(f"Requirements: {requirements}")
-        print(f"Financial Aid: {financial_aid}")
 
         if financial_aid:
             return f"Student {profile['name']} (ID: {student_id}) has a GPA of {profile['gpa']} in {profile['major']}. They are eligible for the {financial_aid}. Requirements: {requirements}"
