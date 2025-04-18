@@ -18,7 +18,7 @@ pinned: false
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/edyvision/5dgai-gemini-demo-student-services-mcp)
 </div>
 
-This is a FastAPI-MCP based server that provides student services functionality through an MCP (Model Control Protocol) interface. The server allows you to manage and check student financial aid eligibility. It was built as part of the 5-Day Google AI Kaggle Competition / Course in Q1 of 2025. Check out the <a href="https://medium.com/@docejr/experimenting-with-a-demo-mcp-and-gemini-e5b183e3b3f3">Medium</a> post or <a href="https://www.kaggle.com/code/edyvision/5dgai-gemini-demo-student-services-mcp">Kaggle notebook</a> for full submission details.
+This is a FastAPI-MCP based server that provides student services functionality through an MCP (Model Control Protocol) interface. The server allows you to manage and check student financial aid eligibility. It was built as part of the 5-Day Google AI Kaggle Competition / Course in Q1 of 2025. Check out the <a href="https://medium.com/@docejr/experimenting-with-a-demo-mcp-and-gemini-e5b183e3b3f3">Medium</a> post or <a href="https://www.kaggle.com/code/edyvision/5dgai-gemini-student-services-agent-mcp">Kaggle notebook</a> for full submission details.
 
 It demonstrates how to:
 
