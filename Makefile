@@ -3,7 +3,6 @@
 default: install test lint
 
 install:
-	@python -m pip install --upgrade pip
 	@uv pip install mcp
 	@uv sync
 
@@ -48,22 +47,3 @@ build.docker:
 
 hf.deploy:
 	@huggingface-cli upload student-services-demo-mcp . --repo-type=space
-
-#cdk.deploy:
-#	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never
-#
-#cdk.deploy.json:
-#	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never --outputs-file=${CDK_OUTPUT_PATH}
-#
-#cdk.deploy_promote:
-#	@export PYTHONPATH=$(PYTHONPATH) && cdk deploy ${STACK} --require-approval=never && \
-#    $(MAKE) -C data_sync promote-live
-
-# cdk.diff:
-# 	@cdk diff
-
-# cdk.synth:
-# 	@cdk synth --require-approval never
-
-# cdk.deploy:
-# 	@cdk deploy
