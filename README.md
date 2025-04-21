@@ -124,3 +124,25 @@ This project deploys to HuggingFace. Simply create a new HuggingFace Space, upda
 ```bash
 make hf.deploy
 ```
+
+## Connecting to Cursor
+To connect Cursor to either your local or HF deployed space, update the mcp.json file to include the following:
+
+```json
+{
+  "mcpServers": {
+    "student-services-mcp-hf": {
+      "url": "https://<hf_user-handle>-student-services-demo-mcp.hf.space/mcp",
+      "headers": {
+        "Authorization": "Bearer ${HF_TOKEN}",
+        "Accept": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive"
+      }
+    },
+    "student-services-mcp-local": {
+      "url": "http://0.0.0.0:7860/mcp"
+    }
+  }
+}
+```
