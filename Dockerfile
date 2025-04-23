@@ -16,7 +16,6 @@ ENV PATH="/home/user/.local/bin:$PATH"
 WORKDIR /app
 
 # Copy requirements files
-COPY --chown=user requirements.txt .
 COPY --chown=user uv.lock .
 COPY --chown=user pyproject.toml .
 
