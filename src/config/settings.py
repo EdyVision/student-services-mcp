@@ -21,11 +21,17 @@ class ServerSettings(BaseSettings):
     PORT: int = 7860
 
 
+class AuthSettings(BaseSettings):
+    AUTH_ENABLED: bool = True
+    AUTH_TOKEN: str = ""
+
+
 class Settings:
     def __init__(self):
         self.common = CommonSettings()
         self.hf = HuggingFaceSettings()
         self.server = ServerSettings()
+        self.auth = AuthSettings()
 
 
 settings = Settings()
