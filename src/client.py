@@ -11,7 +11,9 @@ load_dotenv()  # load environment variables from .env
 
 
 class StudentServicesMCPClient:
-    def __init__(self, base_url: str = "http://localhost:7860/mcp"):
+    def __init__(
+        self, base_url: str = "http://localhost:7860/mcp", auth_token: str = ""
+    ):
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.base_url = base_url
@@ -19,42 +21,59 @@ class StudentServicesMCPClient:
             "Accept": "text/event-stream",
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "Authorization": f"Bearer {auth_token}",
         }
-        self.hf_token = os.getenv("HF_TOKEN")
 
     def _get_auth_headers(self) -> Dict[str, str]:
         """Get headers including authentication if token is available"""
-        headers = self.base_headers.copy()
-        if self.hf_token:
-            headers["Authorization"] = f"Bearer {self.hf_token}"
-        return headers
+        return self.base_headers
 
     async def connect_to_server(self):
         """Connect to the Hugging Face Space MCP server"""
         try:
             print(f"\nConnecting to server at: {self.base_url}")
+
             # Initialize SSE transport with headers
-            sse_transport = await self.exit_stack.enter_async_context(
-                sse_client(
-                    url=self.base_url,
-                    headers=self._get_auth_headers(),
+            try:
+                sse_transport = await self.exit_stack.enter_async_context(
+                    sse_client(
+                        url=self.base_url,
+                        headers=self._get_auth_headers(),
+                    )
                 )
-            )
+            except Exception as e:
+                print(f"Error creating SSE transport: {str(e)}")
+                raise
 
             # Create client session with the SSE transport
-            read_stream, write_stream = sse_transport
-            self.session = await self.exit_stack.enter_async_context(
-                ClientSession(read_stream, write_stream)
-            )
+            try:
+                read_stream, write_stream = sse_transport
+                self.session = await self.exit_stack.enter_async_context(
+                    ClientSession(read_stream, write_stream)
+                )
+            except Exception as e:
+                print(f"Error creating client session: {str(e)}")
+                raise
 
-            await self.session.initialize()
+            try:
+                await self.session.initialize()
+            except Exception as e:
+                print(f"Error initializing session: {str(e)}")
+                raise
 
             # List available tools
-            response = await self.session.list_tools()
-            tools = response.tools
-            print("\nConnected to server with tools:", [tool.name for tool in tools])
+            try:
+                response = await self.session.list_tools()
+                tools = response.tools
+                print(
+                    "\nConnected to server with tools:", [tool.name for tool in tools]
+                )
+            except Exception as e:
+                print(f"Error listing tools: {str(e)}")
+                raise
+
         except Exception as e:
-            print(f"Error connecting to server: {e}")
+            print(f"Error connecting to server: {str(e)}")
             raise
 
     async def fetch_students(self, limit: int = 100):

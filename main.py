@@ -1,6 +1,6 @@
 import uvicorn
-from fastapi import FastAPI, Request
-from fastapi_mcp import FastApiMCP
+from fastapi import FastAPI, Request, Depends
+from fastapi_mcp import FastApiMCP, AuthConfig
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -13,6 +13,7 @@ from src.adapters.clients.registrar import RegistrarSystem
 from src.adapters.resolvers.financial_aid_resolvers import FinancialAidResolver
 from src.adapters.resolvers.registrar_resolvers import RegistrarResolver
 from src.config.settings import settings
+from src.middleware.auth import verify_auth
 
 # ==== CONTEXT ====
 
@@ -56,7 +57,9 @@ mcp = FastApiMCP(
     app,
     name=settings.common.APP_NAME,
     description=settings.common.APP_DESCRIPTION,
-    base_url=f"http://{settings.server.HOST}:{settings.server.PORT}",
+    auth_config=AuthConfig(
+        dependencies=[Depends(verify_auth)],
+    ),
 )
 
 # ==== MOUNT MCP ====
