@@ -14,6 +14,7 @@ pinned: false
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![](https://badge.mcpx.dev?type=server 'MCP Server')
 [![Medium](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@docejr/experimenting-with-a-demo-mcp-and-gemini-e5b183e3b3f3)
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/edyvision/5dgai-gemini-demo-student-services-mcp)
 </div>
