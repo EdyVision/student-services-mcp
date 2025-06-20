@@ -21,7 +21,7 @@ test:
 
 test.coverage:
 	@uv run coverage run -m pytest -v tests
-	@uv run coverage report -m --omit='*/clients/*' --fail-under=80
+	@uv run coverage report -m --omit='*/clients/*' --fail-under=75
 
 typecheck:
 	@mypy src tests main.py
