@@ -81,10 +81,10 @@ class StudentServicesMCPClient:
         response = await self.session.call_tool("fetch_students", {"limit": limit})
         return response.content
 
-    async def check_financial_aid_eligibility(self, student_id: str):
+    async def fetch_financial_aid_eligibility(self, student_id: str):
         """Check financial aid eligibility for a student"""
         response = await self.session.call_tool(
-            "check_financial_aid_eligibility", {"student_id": student_id}
+            "fetch_financial_aid_eligibility", {"student_id": student_id}
         )
         return response.content
 
@@ -92,6 +92,43 @@ class StudentServicesMCPClient:
         """Fetch a student's profile"""
         response = await self.session.call_tool(
             "fetch_student_profile", {"student_id": student_id}
+        )
+        return response.content
+
+    async def fetch_student_profile_by_name(self, student_name: str):
+        """Fetch a student's profile by student_name (case-insensitive)"""
+        response = await self.session.call_tool(
+            "fetch_student_profile_by_name", {"student_name": student_name}
+        )
+        return response.content
+
+    async def fetch_course_plan(
+        self, student_id: str, target_credits: int, stress_level: str
+    ):
+        """Fetch a course plan for a student"""
+        response = await self.session.call_tool(
+            "fetch_course_plan",
+            {
+                "student_id": student_id,
+                "target_credits": target_credits,
+                "stress_level": stress_level,
+            },
+        )
+        return response.content
+
+    async def submit_course_plan(self, student_id: str, plan: str, justification: str):
+        """Submit a course plan for a student"""
+        response = await self.session.call_tool(
+            "submit_course_plan",
+            {"student_id": student_id, "plan": plan, "justification": justification},
+        )
+        return response.content
+
+    async def submit_note(self, student_id: str, note: str, stress_level: str):
+        """Submit a note for a student"""
+        response = await self.session.call_tool(
+            "submit_note",
+            {"student_id": student_id, "note": note, "stress_level": stress_level},
         )
         return response.content
 

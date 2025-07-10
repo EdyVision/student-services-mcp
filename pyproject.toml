@@ -8,6 +8,7 @@ dependencies = [
     "aiohttp>=3.11.16",
     "black[jupyter]>=25.1.0",
     "coverage>=7.8.0",
+    "faker>=37.4.0",
     "fastapi>=0.115.12",
     "fastapi-mcp>=0.3.2",
     "jupyter>=1.1.1",

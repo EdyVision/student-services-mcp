@@ -41,15 +41,15 @@ class TestMCPClient:
         assert response == mock_response
 
     @pytest.mark.asyncio
-    async def test_check_financial_aid_eligibility(self, client):
+    async def test_fetch_financial_aid_eligibility(self, client):
         student_id = "test-id"
         mock_response = {"status": "success", "data": {"eligible": True}}
         client.session.call_tool.return_value.content = mock_response
 
-        response = await client.check_financial_aid_eligibility(student_id)
+        response = await client.fetch_financial_aid_eligibility(student_id)
 
         client.session.call_tool.assert_called_once_with(
-            "check_financial_aid_eligibility", {"student_id": student_id}
+            "fetch_financial_aid_eligibility", {"student_id": student_id}
         )
         assert response == mock_response
 
