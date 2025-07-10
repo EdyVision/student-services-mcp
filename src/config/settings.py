@@ -19,11 +19,11 @@ class HuggingFaceSettings(BaseSettings):
 
 class ServerSettings(BaseSettings):
     HOST: str = "0.0.0.0"
-    PORT: int = 7860
+    PORT: int = 7862
 
 
 class AuthSettings(BaseSettings):
-    AUTH_ENABLED: bool = True
+    AUTH_ENABLED: bool = False
     AUTH_TOKEN: str = ""
 
 

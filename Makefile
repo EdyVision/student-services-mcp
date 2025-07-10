@@ -7,6 +7,10 @@ install:
 	@uv sync
 
 
+seed.data:
+	@uv run regenerate_data.py
+
+
 start.mcp:
 	@LOCAL_MODEL_PATH="" uv run main.py --host 0.0.0.0 --port 7860 --reload
 

@@ -1,5 +1,9 @@
 ---
 title: Student Services MCP Server
+tags: 
+- mcp
+- fictitious
+- education
 emoji: 🧾
 colorFrom: blue
 colorTo: green
@@ -19,7 +23,11 @@ pinned: false
 [![Kaggle](https://img.shields.io/badge/Kaggle-035a7d?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/edyvision/5dgai-gemini-demo-student-services-mcp)
 </div>
 
-This is a FastAPI-MCP based server that provides student services functionality through an MCP (Model Control Protocol) interface. The server allows you to manage and check student financial aid eligibility. It was built as part of the 5-Day Google AI Kaggle Competition / Course in Q1 of 2025. Check out the <a href="https://medium.com/@docejr/experimenting-with-a-demo-mcp-and-gemini-e5b183e3b3f3">Medium</a> post or <a href="https://www.kaggle.com/code/edyvision/5dgai-gemini-student-services-agent-mcp">Kaggle notebook</a> for full submission details.
+This is a FastAPI-MCP based server that provides student services functionality through an MCP (Model Control Protocol) interface. The server allows you to manage and check student financial aid eligibility. It was built as part of the `5-Day Google AI Kaggle Competition / Course` in Q1 of 2025 and has since been expanded to have additional functionality to support the new `Academic Planning Agent` sample project. 
+
+For the original agent concept, check out the <a href="https://medium.com/@docejr/experimenting-with-a-demo-mcp-and-gemini-e5b183e3b3f3">Medium</a> post or <a href="https://www.kaggle.com/code/edyvision/5dgai-gemini-student-services-agent-mcp">Kaggle notebook</a> for full submission details.
+
+For the new Academic Planning Assistant, check out <a href="https://github.com/EdyVision/academic-planning-assistant.git">Academic Planning Assistant Project</a>.
 
 It demonstrates how to:
 

@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import random
+import json
 
 
 class RegistrarSystem:
@@ -12,7 +13,6 @@ class RegistrarSystem:
 
         # Initialize with empty data
         self.students = {}
-        self.academic_history = {}
 
         # Load synthetic data if file exists
         if os.path.exists(data_path):
@@ -29,25 +29,45 @@ class RegistrarSystem:
                             financial_status = eval(financial_status)
                         except:
                             financial_status = {}
+
+                    # Handle past_terms as JSON
+                    past_terms = row.get("past_terms", "[]")
+                    if isinstance(past_terms, str):
+                        try:
+                            past_terms = json.loads(past_terms)
+                        except:
+                            past_terms = []
+
+                    # Handle notes as JSON
+                    notes = row.get("notes", "[]")
+                    if isinstance(notes, str):
+                        try:
+                            notes = json.loads(notes)
+                        except:
+                            notes = []
+
                     self.students[student_id] = {
                         "student_id": student_id,
                         "name": row["name"],
-                        "courses": row["courses"],
-                        "is_need_based_qualified": random.choice([True, False]),
-                        "enrollment_status": "enrolled",
+                        "email": row.get("email", f"{student_id}@university.edu"),
+                        "phone": row.get("phone", ""),
+                        "address": row.get("address", ""),
+                        "enrollment_status": row.get("enrollment_status", "enrolled"),
                         "major": row["major"],
-                        "program": row["program"],
-                        "year": random.choice(
-                            ["Freshman", "Sophomore", "Junior", "Senior"]
-                        ),
+                        "year": row.get("year", "Unknown"),
                         "gpa": row["gpa"],
+                        "work_hours": row.get("work_hours", 0),
+                        "goal": row.get("goal", "graduate"),
+                        "past_terms": past_terms,
+                        "notes": notes,
+                        "financial_status": financial_status,
+                        "is_need_based_qualified": random.choice([True, False]),
                     }
 
             except Exception as e:
                 print(f"Error loading synthetic data: {e}")
                 # If there's an error, we'll use empty data
                 self.students = {}
-                self.academic_history = {}
         else:
             raise FileNotFoundError(
                 f"Data file not found at {data_path}. Please ensure the file exists."
@@ -189,16 +209,177 @@ class RegistrarSystem:
 
     async def get_student_profile(self, student_id: str) -> dict:
         """Get a student's profile information."""
-        # TODO: This needs to call out to the live system
         return self.students.get(student_id, {"error": "Student not found"})
 
     async def get_student_profiles(self, num_records: int) -> dict:
         """Get a student's profile information."""
-        # TODO: This needs to call out to the live system
         return list(self.students.values())[:num_records]
 
+    async def get_student_profile_by_name(self, student_name: str) -> dict:
+        """Get a student's profile information by name (case-insensitive)."""
+        for student in self.students.values():
+            if student["name"].lower() == student_name.lower():
+                return student
+        return {"error": "Student not found"}
+
     async def get_academic_history(self, student_id: str) -> dict:
-        """Get a student's academic history."""
-        return self.academic_history.get(
-            student_id, {"error": "Academic history not found"}
+        """Get a student's academic history (now from past_terms)."""
+        student = self.students.get(student_id)
+        if not student or not student.get("past_terms"):
+            return {"error": "Academic history not found"}
+        return {
+            "student_id": student_id,
+            "name": student["name"],
+            "past_terms": student["past_terms"],
+        }
+
+    async def add_note(self, student_id: str, note: str, stress_level: str) -> bool:
+        """Add a note and update stress level for a student."""
+        if student_id not in self.students:
+            return False
+
+        # Create note entry with timestamp
+        import datetime
+
+        note_entry = {
+            "note": note,
+            "stress_level": stress_level,
+            "timestamp": datetime.datetime.now().isoformat(),
+        }
+
+        # Add to student's notes
+        self.students[student_id]["notes"].append(note_entry)
+
+        # Update current stress level
+        self.students[student_id]["current_stress_level"] = stress_level
+
+        return True
+
+    async def generate_course_plan(
+        self, student_id: str, target_credits: int, stress_level: str
+    ) -> str:
+        """Generate a course plan based on target credits and stress level."""
+        if student_id not in self.students:
+            return "Student not found"
+
+        student = self.students[student_id]
+        major = student["major"]
+        past_terms = student["past_terms"]
+
+        # Course recommendations based on stress level
+        if stress_level == "low":
+            max_courses = min(target_credits // 3, 6)  # Max 6 courses for low stress
+            course_load_desc = "light course load"
+        elif stress_level == "moderate":
+            max_courses = min(
+                target_credits // 3, 5
+            )  # Max 5 courses for moderate stress
+            course_load_desc = "moderate course load"
+        else:  # high stress
+            max_courses = min(target_credits // 3, 4)  # Max 4 courses for high stress
+            course_load_desc = "manageable course load due to high stress"
+
+        # Calculate recommended credits per course
+        credits_per_course = 3 if target_credits <= 12 else 4
+        total_courses = min(
+            max_courses, (target_credits + credits_per_course - 1) // credits_per_course
         )
+
+        # Generate course suggestions based on major
+        major_courses = {
+            "Computer Science": [
+                "Data Structures",
+                "Algorithms",
+                "Database Systems",
+                "Software Engineering",
+                "Machine Learning",
+            ],
+            "Engineering": [
+                "Thermodynamics",
+                "Fluid Mechanics",
+                "Materials Science",
+                "Control Systems",
+                "Design Project",
+            ],
+            "Psychology": [
+                "Cognitive Psychology",
+                "Research Methods",
+                "Statistics",
+                "Abnormal Psychology",
+                "Social Psychology",
+            ],
+            "Business": [
+                "Marketing",
+                "Finance",
+                "Operations Management",
+                "Strategic Management",
+                "Business Ethics",
+            ],
+            "Biology": [
+                "Genetics",
+                "Cell Biology",
+                "Ecology",
+                "Biochemistry",
+                "Molecular Biology",
+            ],
+            "Mathematics": [
+                "Calculus III",
+                "Linear Algebra",
+                "Differential Equations",
+                "Statistics",
+                "Abstract Algebra",
+            ],
+        }
+
+        suggested_courses = major_courses.get(
+            major, ["Core Course 1", "Core Course 2", "Elective 1", "Elective 2"]
+        )
+
+        # Build course plan
+        plan = f"Recommended {course_load_desc} for {target_credits} credit hours:\n\n"
+
+        for i in range(total_courses):
+            course_name = suggested_courses[i % len(suggested_courses)]
+            plan += f"• {course_name} ({credits_per_course} credits)\n"
+
+        actual_credits = total_courses * credits_per_course
+
+        plan += f"\nTotal: {actual_credits} credits"
+
+        if actual_credits < target_credits:
+            plan += f"\nNote: Reduced from {target_credits} credits due to {stress_level} stress level for better academic success."
+
+        # Add study tips based on stress level
+        if stress_level == "high":
+            plan += "\n\nRecommendations for high stress management:\n"
+            plan += "• Schedule regular study breaks\n"
+            plan += "• Use campus counseling services\n"
+            plan += "• Consider tutoring support\n"
+            plan += "• Maintain work-life balance"
+
+        return plan
+
+    async def submit_course_plan(
+        self, student_id: str, plan: str, justification: str
+    ) -> bool:
+        """Submit a course plan with justification."""
+        if student_id not in self.students:
+            return False
+
+        import datetime
+
+        # Create plan submission entry
+        plan_entry = {
+            "plan": plan,
+            "justification": justification,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "status": "submitted",
+        }
+
+        # Add to student's record
+        if "submitted_plans" not in self.students[student_id]:
+            self.students[student_id]["submitted_plans"] = []
+
+        self.students[student_id]["submitted_plans"].append(plan_entry)
+
+        return True

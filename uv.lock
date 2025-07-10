@@ -399,6 +399,18 @@ wheels = [
 ]
 
 [[package]]
+name = "faker"
+version = "37.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tzdata" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/65/f9/66af4019ee952fc84b8fe5b523fceb7f9e631ed8484417b6f1e3092f8290/faker-37.4.0.tar.gz", hash = "sha256:7f69d579588c23d5ce671f3fa872654ede0e67047820255f43a4aa1925b89780", size = 1901976 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/5e/c8c3c5ea0896ab747db2e2889bf5a6f618ed291606de6513df56ad8670a8/faker-37.4.0-py3-none-any.whl", hash = "sha256:cb81c09ebe06c32a10971d1bbdb264bb0e22b59af59548f011ac4809556ce533", size = 1942992 },
+]
+
+[[package]]
 name = "fastapi"
 version = "0.115.12"
 source = { registry = "https://pypi.org/simple" }
@@ -1912,6 +1924,7 @@ dependencies = [
     { name = "aiohttp" },
     { name = "black", extra = ["jupyter"] },
     { name = "coverage" },
+    { name = "faker" },
     { name = "fastapi" },
     { name = "fastapi-mcp" },
     { name = "jupyter" },
@@ -1930,6 +1943,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.11.16" },
     { name = "black", extras = ["jupyter"], specifier = ">=25.1.0" },
     { name = "coverage", specifier = ">=7.8.0" },
+    { name = "faker", specifier = ">=37.4.0" },
     { name = "fastapi", specifier = ">=0.115.12" },
     { name = "fastapi-mcp", specifier = ">=0.3.2" },
     { name = "jupyter", specifier = ">=1.1.1" },
