@@ -76,6 +76,15 @@ class StudentServicesMCPClient:
             print(f"Error connecting to server: {str(e)}")
             raise
 
+    async def get_schema(self):
+        """Get the schema for the MCP tools"""
+        try:
+            response = await self.session.list_tools()
+            return response.tools
+        except Exception as e:
+            print(f"Error getting schema: {str(e)}")
+            raise
+    
     async def fetch_students(self, limit: int = 100):
         """Fetch a list of students"""
         response = await self.session.call_tool("fetch_students", {"limit": limit})
