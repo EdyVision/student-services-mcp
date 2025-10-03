@@ -1,5 +1,5 @@
-from src.adapters.clients.financial_aid import FinancialAidSystem
-from src.adapters.clients.registrar import RegistrarSystem
+from src.adapters.systems.financial_aid import FinancialAidSystem
+from src.adapters.systems.registrar import RegistrarSystem
 
 
 class FinancialAidResolver:

@@ -9,7 +9,7 @@ import os
 # Add src to path to import our modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from src.adapters.clients.synthetic_data import build_synthetic_data
+from src.adapters.systems.synthetic_data import build_synthetic_data
 
 
 def main():

@@ -1,6 +1,6 @@
 from typing import List
 import json
-from src.adapters.clients.registrar import RegistrarSystem
+from src.adapters.systems.registrar import RegistrarSystem
 
 
 class RegistrarResolver:
