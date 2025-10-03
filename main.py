@@ -7,20 +7,23 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from starlette.responses import JSONResponse
 
-from src.adapters.clients.financial_aid import FinancialAidSystem
-from src.adapters.clients.registrar import RegistrarSystem
+from src.adapters.systems.financial_aid import FinancialAidSystem
+from src.adapters.systems.registrar import RegistrarSystem
+from src.adapters.systems.analyses import StudentAnalysesSystem
 from src.adapters.resolvers.financial_aid_resolvers import FinancialAidResolver
 from src.adapters.resolvers.registrar_resolvers import RegistrarResolver
+from src.adapters.resolvers.analyses_resolvers import AnalysesResolver
 from src.config.settings import settings
 from src.middleware.auth import verify_auth
 
 
 @dataclass
 class AppContext:
-    """Application context with our three systems."""
+    """Application context with our systems."""
 
     financial_aid: FinancialAidResolver
     registrar: RegistrarResolver
+    analyses: AnalysesResolver
 
 
 @asynccontextmanager
@@ -31,13 +34,17 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[AppContext]:
 
     financial_aid_system = FinancialAidSystem()
     registrar_system = RegistrarSystem(synthetic_data_path)
+    analyses_system = StudentAnalysesSystem(synthetic_data_path)
+
     financial_aid_resolver = FinancialAidResolver(
         registrar=registrar_system, financial_aid=financial_aid_system
     )
     registrar_resolver = RegistrarResolver(registrar=registrar_system)
+    analyses_resolver = AnalysesResolver(analyses=analyses_system)
 
     app.state.financial_aid_resolver = financial_aid_resolver
     app.state.registrar_resolver = registrar_resolver
+    app.state.analyses_resolver = analyses_resolver
 
     try:
 
@@ -179,6 +186,62 @@ async def submit_course_plan(
     """Submit a course plan with justification or reflection from student."""
     return await request.app.state.registrar_resolver.submit_course_plan(
         student_id, plan, justification
+    )
+
+
+@app.get(
+    "/students/{student_id}/attrition-risk",
+    operation_id="fetch_student_dropout_risk",
+    description="Fetch dropout risk prediction for a specific student with probability and recommendations.",
+)
+async def fetch_student_dropout_risk(student_id: str, request: Request):
+    """Fetch dropout risk prediction for a specific student."""
+    return await request.app.state.analyses_resolver.resolve_student_dropout_risk(
+        student_id
+    )
+
+
+@app.get(
+    "/attrition/high-risk-students",
+    operation_id="fetch_high_risk_students",
+    description="Fetch a list of students at high risk of dropping out.",
+)
+async def fetch_high_risk_students(limit: int = 10, request: Request = None):
+    """Fetch a list of high-risk students."""
+    return await request.app.state.analyses_resolver.resolve_high_risk_students(limit)
+
+
+@app.get(
+    "/attrition/statistics",
+    operation_id="fetch_attrition_statistics",
+    description="Fetch overall attrition statistics for the student population.",
+)
+async def fetch_attrition_statistics(request: Request):
+    """Fetch overall attrition statistics."""
+    return await request.app.state.analyses_resolver.resolve_attrition_statistics()
+
+
+@app.get(
+    "/students/{student_id}/attrition-analysis",
+    operation_id="fetch_student_attrition_analysis",
+    description="Fetch detailed attrition factor analysis and risk indicators for a student.",
+)
+async def fetch_student_attrition_analysis(student_id: str, request: Request):
+    """Fetch detailed attrition factor analysis for a student."""
+    return await request.app.state.analyses_resolver.resolve_attrition_factor_analysis(
+        student_id
+    )
+
+
+@app.get(
+    "/analytics/attrition-feature-importance",
+    operation_id="fetch_attrition_feature_importance",
+    description="Fetch attrition feature importance analysis for dropout prediction model.",
+)
+async def fetch_attrition_feature_importance(request: Request):
+    """Fetch attrition feature importance analysis for dropout prediction."""
+    return (
+        await request.app.state.analyses_resolver.resolve_attrition_feature_importance()
     )
 
 

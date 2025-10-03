@@ -84,17 +84,11 @@ class StudentServicesMCPClient:
         except Exception as e:
             print(f"Error getting schema: {str(e)}")
             raise
-    
+
+    #region Student Management
     async def fetch_students(self, limit: int = 100):
         """Fetch a list of students"""
         response = await self.session.call_tool("fetch_students", {"limit": limit})
-        return response.content
-
-    async def fetch_financial_aid_eligibility(self, student_id: str):
-        """Check financial aid eligibility for a student"""
-        response = await self.session.call_tool(
-            "fetch_financial_aid_eligibility", {"student_id": student_id}
-        )
         return response.content
 
     async def fetch_student_profile(self, student_id: str):
@@ -111,6 +105,24 @@ class StudentServicesMCPClient:
         )
         return response.content
 
+    async def fetch_academic_history(self, student_id: str):
+        """Fetch a student's academic history"""
+        response = await self.session.call_tool(
+            "fetch_academic_history", {"student_id": student_id}
+        )
+        return response.content
+    #endregion
+
+    #region Financial Aid
+    async def fetch_financial_aid_eligibility(self, student_id: str):
+        """Check financial aid eligibility for a student"""
+        response = await self.session.call_tool(
+            "fetch_financial_aid_eligibility", {"student_id": student_id}
+        )
+        return response.content
+    #endregion
+
+    #region Academic Planning
     async def fetch_course_plan(
         self, student_id: str, target_credits: int, stress_level: str
     ):
@@ -132,7 +144,9 @@ class StudentServicesMCPClient:
             {"student_id": student_id, "plan": plan, "justification": justification},
         )
         return response.content
+    #endregion
 
+    #region Student Notes
     async def submit_note(self, student_id: str, note: str, stress_level: str):
         """Submit a note for a student"""
         response = await self.session.call_tool(
@@ -140,13 +154,40 @@ class StudentServicesMCPClient:
             {"student_id": student_id, "note": note, "stress_level": stress_level},
         )
         return response.content
+    #endregion
 
-    async def fetch_academic_history(self, student_id: str):
-        """Fetch a student's academic history"""
+    #region Analytics & Attrition Prediction
+    async def fetch_student_dropout_risk(self, student_id: str):
+        """Fetch dropout risk prediction for a specific student"""
         response = await self.session.call_tool(
-            "fetch_academic_history", {"student_id": student_id}
+            "fetch_student_dropout_risk", {"student_id": student_id}
         )
         return response.content
+
+    async def fetch_high_risk_students(self, limit: int = 10):
+        """Fetch a list of students at high risk of dropping out"""
+        response = await self.session.call_tool(
+            "fetch_high_risk_students", {"limit": limit}
+        )
+        return response.content
+
+    async def fetch_attrition_statistics(self):
+        """Fetch overall attrition statistics for the student population"""
+        response = await self.session.call_tool("fetch_attrition_statistics", {})
+        return response.content
+
+    async def fetch_student_attrition_analysis(self, student_id: str):
+        """Fetch detailed attrition factor analysis for a student"""
+        response = await self.session.call_tool(
+            "fetch_student_attrition_analysis", {"student_id": student_id}
+        )
+        return response.content
+
+    async def fetch_attrition_feature_importance(self):
+        """Fetch attrition feature importance analysis for dropout prediction"""
+        response = await self.session.call_tool("fetch_attrition_feature_importance", {})
+        return response.content
+    #endregion
 
     async def cleanup(self):
         """Clean up resources"""

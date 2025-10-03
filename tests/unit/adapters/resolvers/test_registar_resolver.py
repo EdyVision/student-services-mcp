@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import json
 import os
-from src.adapters.clients.registrar import RegistrarSystem
+from src.adapters.systems.registrar import RegistrarSystem
 from src.adapters.resolvers.registrar_resolvers import RegistrarResolver
 
 DATA_PATH = os.path.join(

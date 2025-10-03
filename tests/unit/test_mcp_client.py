@@ -78,3 +78,79 @@ class TestMCPClient:
             "fetch_academic_history", {"student_id": student_id}
         )
         assert response == mock_response
+
+    # Analytics tools tests
+    @pytest.mark.asyncio
+    async def test_fetch_student_dropout_risk(self, client):
+        student_id = "test-id"
+        mock_response = {"status": "success", "data": {"dropout_risk": True, "probability": 0.8}}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_student_dropout_risk(student_id)
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_student_dropout_risk", {"student_id": student_id}
+        )
+        assert response == mock_response
+
+    @pytest.mark.asyncio
+    async def test_fetch_high_risk_students(self, client):
+        limit = 5
+        mock_response = {"status": "success", "data": [{"student_id": "S001", "risk": 0.9}]}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_high_risk_students(limit)
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_high_risk_students", {"limit": limit}
+        )
+        assert response == mock_response
+
+    @pytest.mark.asyncio
+    async def test_fetch_high_risk_students_default_limit(self, client):
+        mock_response = {"status": "success", "data": []}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_high_risk_students()
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_high_risk_students", {"limit": 10}
+        )
+        assert response == mock_response
+
+    @pytest.mark.asyncio
+    async def test_fetch_attrition_statistics(self, client):
+        mock_response = {"status": "success", "data": {"total_students": 100, "dropout_rate": 0.15}}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_attrition_statistics()
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_attrition_statistics", {}
+        )
+        assert response == mock_response
+
+    @pytest.mark.asyncio
+    async def test_fetch_student_attrition_analysis(self, client):
+        student_id = "test-id"
+        mock_response = {"status": "success", "data": {"factors": ["low_gpa", "high_work_hours"]}}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_student_attrition_analysis(student_id)
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_student_attrition_analysis", {"student_id": student_id}
+        )
+        assert response == mock_response
+
+    @pytest.mark.asyncio
+    async def test_fetch_attrition_feature_importance(self, client):
+        mock_response = {"status": "success", "data": {"correlation_analysis": {"gpa": 0.8}}}
+        client.session.call_tool.return_value.content = mock_response
+
+        response = await client.fetch_attrition_feature_importance()
+
+        client.session.call_tool.assert_called_once_with(
+            "fetch_attrition_feature_importance", {}
+        )
+        assert response == mock_response

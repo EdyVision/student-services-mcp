@@ -1,12 +1,12 @@
 import pytest
 import pandas as pd
 import json
-from src.adapters.clients.registrar import RegistrarSystem
-from src.adapters.clients.financial_aid import FinancialAidSystem
+from src.adapters.systems.registrar import RegistrarSystem
+from src.adapters.systems.financial_aid import FinancialAidSystem
 from src.adapters.resolvers.financial_aid_resolvers import FinancialAidResolver
 import os
 import pandas as pd
-from src.adapters.clients.synthetic_data import build_synthetic_data
+from src.adapters.systems.synthetic_data import build_synthetic_data
 
 
 @pytest.fixture(scope="module")
